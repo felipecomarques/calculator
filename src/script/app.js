@@ -1,4 +1,3 @@
-// Passo 01 - Variáveis e display da calculadora
 let currentInput = document.querySelector('.currentInput');
 let answerScreen = document.querySelector('.answerScreen');
 let buttons = document.querySelectorAll('button');
@@ -8,7 +7,6 @@ let evaluate = document.querySelector('#evaluate');
 
 let realTimeScreenValue = []
 
-// Passo 02 - Função limpar
 clearbtn.addEventListener("click", () => {
     realTimeScreenValue = [''];
     answerScreen.innerHTML = 0;
@@ -17,18 +15,16 @@ clearbtn.addEventListener("click", () => {
     answerScreen.style.color = "rgba(150, 150, 150, 0.87)";
 })
 
-// Passo 03 - Anexar eventos
 buttons.forEach((btn) => {
 
     btn.addEventListener("click", () => {
-        // Passo 04 - Montar expressão
         if (!btn.id.match('erase')) {
             
             realTimeScreenValue.push(btn.value)
             currentInput.innerHTML = realTimeScreenValue.join('');
 
             if (btn.classList.contains('num_btn')) {
-                answerScreen.innerHTML = eval(realTimeScreenValue.join(''));
+                answerScreen.innerHTML = evaluateMath(realTimeScreenValue.join(''));
             }
 
             if (btn.classList.contains('fun_btn')){
@@ -39,7 +35,7 @@ buttons.forEach((btn) => {
         if (btn.id.match('erase')) {
             realTimeScreenValue.pop();
             currentInput.innerHTML = realTimeScreenValue.join('');
-            answerScreen.innerHTML = eval(realTimeScreenValue.join(''));
+            answerScreen.innerHTML = evaluateMath(realTimeScreenValue.join(''));
         }
 
         if (btn.id.match('evaluate')) {
@@ -54,3 +50,25 @@ buttons.forEach((btn) => {
     })
 });
 
+function sanitizeExpression(expression) {
+    const sanitized = expression.replace(/[^0-9+\-*/()% .]/g, '');
+    if (sanitized === expression) {
+        return sanitized;
+    }
+
+    return null;
+}
+
+function evaluateMath(expression) {
+    const sanitizedExpression = sanitizeExpression(expression);
+    if (sanitizedExpression === null) {
+        return undefined;
+    }
+
+    try {
+        const result = Function(`"use strict"; return (${expression})`)();
+        return result;
+    } catch (err) {
+        return err;
+    }
+}
